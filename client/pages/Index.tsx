@@ -9,11 +9,13 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { BookOpen } from "lucide-react";
-import { loadReadings, saveReadings, suggestForPh, type Reading } from "@/lib/soil";
+import { loadReadings, saveReadings, suggestForReading, type Reading } from "@/lib/soil";
+import { useI18n } from "@/lib/i18n";
 
 export default function Index() {
+  const { t } = useI18n();
   const [readings, setReadings] = useState<Reading[]>(() => loadReadings());
-  const [lastSuggestion, setLastSuggestion] = useState<ReturnType<typeof suggestForPh> | null>(null);
+  const [lastSuggestions, setLastSuggestions] = useState<ReturnType<typeof suggestForReading> | null>(null);
   const [filterLocation, setFilterLocation] = useState<string | "All">("All");
   const [search, setSearch] = useState("");
 
@@ -28,7 +30,7 @@ export default function Index() {
       const next = [...prev, r];
       return next;
     });
-    setLastSuggestion(suggestForPh(r.ph));
+    setLastSuggestions(suggestForReading(r));
     if (filterLocation === "All") setFilterLocation(r.location);
   }
 
@@ -48,11 +50,14 @@ export default function Index() {
 
   const googleQuery = useMemo(() => {
     const base = "soil pH management";
-    if (!lastSuggestion) return base;
-    if (lastSuggestion.status === "acidic") return "raise soil pH garden lime application rate";
-    if (lastSuggestion.status === "alkaline") return "lower alkaline soil pH elemental sulfur";
+    if (!lastSuggestions || lastSuggestions.length === 0) return base;
+    const s = lastSuggestions[0];
+    if (s.status === "acidic") return "raise soil pH garden lime application rate";
+    if (s.status === "alkaline") return "lower alkaline soil pH elemental sulfur";
+    if (s.status === "dry") return "increase soil moisture irrigation scheduling";
+    if (s.status === "wet") return "improve soil drainage reduce overwatering";
     return base;
-  }, [lastSuggestion]);
+  }, [lastSuggestions]);
 
   return (
     <div className="bg-gradient-to-b from-secondary/60 to-background">
@@ -60,22 +65,21 @@ export default function Index() {
         <div className="grid gap-8 lg:grid-cols-5 items-start">
           <div className="lg:col-span-3 space-y-6">
             <div>
-              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">Soil pH Tracker & Fertilizer Advisor</h1>
-              <p className="mt-2 text-muted-foreground max-w-2xl">
-                Record soil pH by field, visualize trends, export weekly or monthly Excel reports, and
-                get guidance on fertilizer and amendments.
-              </p>
+              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">{t("app_title")}</h1>
+              <p className="mt-2 text-muted-foreground max-w-2xl">{t("app_sub")}</p>
             </div>
 
             <div className="rounded-xl border bg-card p-4 md:p-6">
-              <h2 className="font-semibold mb-4">Add a Reading</h2>
+              <h2 className="font-semibold mb-4">{t("add_reading")}</h2>
               <PhForm onAdd={addReading} defaultLocation={locations[0]} />
-              {lastSuggestion && <div className="mt-6"><SuggestionPanel suggestion={lastSuggestion} /></div>}
+              {lastSuggestions && lastSuggestions.map((s, i) => (
+                <div key={i} className="mt-6"><SuggestionPanel suggestion={s} /></div>
+              ))}
             </div>
 
             <div className="rounded-xl border bg-card p-4 md:p-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <h2 className="font-semibold">Export Reports</h2>
+                <h2 className="font-semibold">{t("export_reports")}</h2>
                 <ExportXlsx readings={readings} />
               </div>
             </div>
@@ -84,14 +88,14 @@ export default function Index() {
           <div className="lg:col-span-2 space-y-6">
             <div className="rounded-xl border bg-card p-4 md:p-6">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="font-semibold">Chart</h2>
+                <h2 className="font-semibold">{t("chart")}</h2>
                 <div className="w-44">
                   <Select value={filterLocation} onValueChange={(v) => setFilterLocation(v as any)}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Filter location" />
+                      <SelectValue placeholder={t("all_locations")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="All">All locations</SelectItem>
+                      <SelectItem value="All">{t("all_locations")}</SelectItem>
                       {locations.map((l) => (
                         <SelectItem key={l} value={l}>
                           {l}
@@ -103,15 +107,13 @@ export default function Index() {
               </div>
               <div className="mt-4">
                 <PhChart readings={readings} location={filterLocation} />
-                <p className="mt-2 text-xs text-muted-foreground">Shaded band indicates typical ideal range (6.0–7.5).</p>
+                <p className="mt-2 text-xs text-muted-foreground">{t("ideal_band")}</p>
               </div>
             </div>
 
             <div className="rounded-xl border bg-card p-4 md:p-6">
-              <h2 className="font-semibold">Google information</h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Open a relevant Google search to learn best practices and local guidance.
-              </p>
+              <h2 className="font-semibold">{t("google_info")}</h2>
+              <p className="mt-2 text-sm text-muted-foreground">{t("google_info_sub")}</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <Button asChild>
                   <a
@@ -119,7 +121,7 @@ export default function Index() {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    <BookOpen className="h-4 w-4 mr-2" /> Open Google
+                    <BookOpen className="h-4 w-4 mr-2" /> {t("open_google")}
                   </a>
                 </Button>
                 <Button asChild variant="secondary">
@@ -128,7 +130,7 @@ export default function Index() {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    pH Testing tips
+                    {t("ph_testing_tips")}
                   </a>
                 </Button>
                 <Button asChild variant="secondary">
@@ -137,7 +139,7 @@ export default function Index() {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    Fertilizer vs pH
+                    {t("fert_vs_ph")}
                   </a>
                 </Button>
               </div>
@@ -153,18 +155,18 @@ export default function Index() {
         <div className="rounded-xl border bg-card p-4 md:p-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="flex-1">
-              <h2 className="font-semibold">Readings</h2>
-              <p className="text-sm text-muted-foreground">Filter and manage your measurements.</p>
+              <h2 className="font-semibold">{t("readings")}</h2>
+              <p className="text-sm text-muted-foreground">{t("filter_manage")}</p>
             </div>
             <div className="flex gap-3 w-full md:w-auto">
               <div className="hidden md:block w-44">
-                <Label className="sr-only" htmlFor="table-location">Location</Label>
+                <Label className="sr-only" htmlFor="table-location">{t("location")}</Label>
                 <Select value={filterLocation} onValueChange={(v) => setFilterLocation(v as any)}>
                   <SelectTrigger id="table-location">
-                    <SelectValue placeholder="Filter location" />
+                    <SelectValue placeholder={t("all_locations")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="All">All locations</SelectItem>
+                    <SelectItem value="All">{t("all_locations")}</SelectItem>
                     {locations.map((l) => (
                       <SelectItem key={l} value={l}>
                         {l}
@@ -174,8 +176,8 @@ export default function Index() {
                 </Select>
               </div>
               <div className="flex-1 md:w-64">
-                <Label className="sr-only" htmlFor="search">Search</Label>
-                <Input id="search" placeholder="Search…" value={search} onChange={(e) => setSearch(e.target.value)} />
+                <Label className="sr-only" htmlFor="search">{t("search")}</Label>
+                <Input id="search" placeholder={t("search")} value={search} onChange={(e) => setSearch(e.target.value)} />
               </div>
             </div>
           </div>
