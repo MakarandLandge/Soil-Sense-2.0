@@ -99,6 +99,27 @@ export default function Settings() {
               <span className="text-sm">°C</span>
             </div>
           </div>
+          <div className="border-t p-4 grid grid-cols-1 md:grid-cols-2 gap-3 items-center">
+            <div>
+              <div className="font-medium">Weather Location</div>
+              <div className="text-sm text-muted-foreground">Use device GPS or set coordinates</div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Input placeholder="Lat" className="w-32" defaultValue={localStorage.getItem("weather_lat") ?? ""} onBlur={(e) => localStorage.setItem("weather_lat", e.target.value)} />
+              <Input placeholder="Lon" className="w-32" defaultValue={localStorage.getItem("weather_lon") ?? ""} onBlur={(e) => localStorage.setItem("weather_lon", e.target.value)} />
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  if (!navigator.geolocation) return;
+                  navigator.geolocation.getCurrentPosition((pos) => {
+                    localStorage.setItem("weather_lat", String(pos.coords.latitude));
+                    localStorage.setItem("weather_lon", String(pos.coords.longitude));
+                    alert("Location saved");
+                  });
+                }}
+              >Use Current</Button>
+            </div>
+          </div>
         </div>
       </section>
 
