@@ -1,6 +1,7 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Leaf, FileSpreadsheet, Settings as SettingsIcon } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 function NavItem({ to, children }: { to: string; children: React.ReactNode }) {
   return (
@@ -17,6 +18,22 @@ function NavItem({ to, children }: { to: string; children: React.ReactNode }) {
     >
       {children}
     </NavLink>
+  );
+}
+
+function LangSwitcher() {
+  const { lang, setLang } = useI18n();
+  return (
+    <select
+      aria-label="Language"
+      className="h-9 px-2 rounded-md border bg-background text-sm"
+      value={lang}
+      onChange={(e) => setLang(e.target.value as any)}
+    >
+      <option value="en">EN</option>
+      <option value="hi">हिं</option>
+      <option value="mr">मरा</option>
+    </select>
   );
 }
 
@@ -39,6 +56,7 @@ export default function AppLayout() {
           </nav>
 
           <div className="flex items-center gap-2">
+            <LangSwitcher />
             <Button asChild variant="outline" className="hidden sm:inline-flex">
               <a
                 href="https://www.google.com/search?q=soil+pH+management+guide"
