@@ -96,7 +96,7 @@ export default function Index() {
             </div>
 
             <div className="rounded-xl border bg-card p-4 md:p-6">
-              <h2 className="font-semibold mb-4">{t("add_reading")}</h2>
+              <h2 id="add-reading" className="font-semibold mb-4">{t("add_reading")}</h2>
               <PhForm onAdd={addReading} defaultLocation={locations[0]} />
               {lastSuggestions && lastSuggestions.map((s, i) => (
                 <div key={i} className="mt-6"><SuggestionPanel suggestion={s} /></div>
