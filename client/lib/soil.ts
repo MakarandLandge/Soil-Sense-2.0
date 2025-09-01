@@ -86,6 +86,35 @@ export function suggestForPh(ph: number): Suggestion {
   };
 }
 
+export function suggestForReading(r: Reading): Suggestion[] {
+  const list: Suggestion[] = [suggestForPh(r.ph)];
+  if (typeof r.moisture === "number") {
+    if (r.moisture < 25) {
+      list.push({
+        status: "dry",
+        severity: r.moisture < 15 ? "high" : "medium",
+        headline: "Soil moisture is low — increase irrigation",
+        details: [
+          "Irrigate to field capacity; avoid waterlogging.",
+          "Mulch to reduce evaporation.",
+          "Schedule watering in early morning.",
+        ],
+      });
+    } else if (r.moisture > 80) {
+      list.push({
+        status: "wet",
+        severity: r.moisture > 90 ? "high" : "medium",
+        headline: "Soil is too wet — reduce watering",
+        details: [
+          "Allow drainage before field operations.",
+          "Check irrigation scheduling and soil compaction.",
+        ],
+      });
+    }
+  }
+  return list;
+}
+
 export type Period = "weekly" | "monthly";
 
 export function summarize(readings: Reading[], period: Period) {
