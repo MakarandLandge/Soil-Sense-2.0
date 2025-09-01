@@ -84,12 +84,42 @@ export default function AppLayout() {
         <Outlet />
       </main>
 
-      <footer className="border-t">
-        <div className="container py-6 text-sm text-muted-foreground flex items-center justify-between">
+      <footer className="border-t pb-14 md:pb-0">
+        <div className="container py-6 text-sm text-muted-foreground hidden md:flex items-center justify-between">
           <p>© {new Date().getFullYear()} SoilSense</p>
           <p className="hidden sm:block">Healthy soil, better yields.</p>
         </div>
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-background">
+          <div className="mx-auto max-w-xl grid grid-cols-5 h-14">
+            <Tab to="/" label="Dashboard" icon="dashboard" />
+            <Tab to="/farms" label="Farms" icon="farm" />
+            <Tab to="/fields" label="Fields" icon="fields" />
+            <Tab to="/reports" label="Reports" icon="reports" />
+            <Tab to="/settings" label="Settings" icon="settings" />
+          </div>
+        </nav>
       </footer>
     </div>
+  );
+}
+
+function Tab({ to, label, icon }: { to: string; label: string; icon: "dashboard"|"farm"|"fields"|"reports"|"settings" }) {
+  return (
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `flex flex-col items-center justify-center text-xs ${isActive ? "text-primary" : "text-muted-foreground"}`
+      }
+      end
+    >
+      <span className="h-5 w-5 mb-0.5">
+        {icon === "dashboard" && <span className="inline-block h-5 w-5 rounded-full border border-primary bg-primary/10" />}
+        {icon === "farm" && <span className="inline-block h-5 w-5 rounded-sm border" />}
+        {icon === "fields" && <span className="inline-block h-5 w-5 border rounded" />}
+        {icon === "reports" && <span className="inline-block h-5 w-5 border rounded-sm" />}
+        {icon === "settings" && <span className="inline-block h-5 w-5 border rounded-full" />}
+      </span>
+      {label}
+    </NavLink>
   );
 }

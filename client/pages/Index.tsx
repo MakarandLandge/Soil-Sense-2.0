@@ -4,6 +4,7 @@ import PhChart from "@/components/soil/PhChart";
 import PhTable from "@/components/soil/PhTable";
 import SuggestionPanel from "@/components/soil/SuggestionPanel";
 import ExportXlsx from "@/components/soil/ExportXlsx";
+import PhGauge from "@/components/soil/PhGauge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -65,8 +66,33 @@ export default function Index() {
         <div className="grid gap-8 lg:grid-cols-5 items-start">
           <div className="lg:col-span-3 space-y-6">
             <div>
-              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">{t("app_title")}</h1>
-              <p className="mt-2 text-muted-foreground max-w-2xl">{t("app_sub")}</p>
+              <p className="text-sm text-muted-foreground">Welcome back,</p>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{(typeof window !== 'undefined' && (JSON.parse(localStorage.getItem('profiles_v1')||'[]')[0]?.name || 'Farmer Singh'))}</h1>
+            </div>
+
+            <PhGauge value={readings.length ? readings[readings.length-1].ph : null} />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="rounded-xl border bg-card p-4">
+                <div className="text-sm text-muted-foreground">Moisture Level</div>
+                <div className="mt-2 text-2xl font-semibold">{Math.round((readings.filter(r=>r.moisture!=null).slice(-5).reduce((a,b)=>a+(b.moisture||0),0)/Math.max(1,readings.filter(r=>r.moisture!=null).slice(-5).length))||0)}%</div>
+                <div className="text-xs text-emerald-600">+5%</div>
+              </div>
+              <div className="rounded-xl border bg-card p-4">
+                <div className="text-sm text-muted-foreground">Soil Temp</div>
+                <div className="mt-2 text-2xl font-semibold">{Number(localStorage.getItem('soil_temp_c')||'24')}°C</div>
+                <div className="text-xs text-emerald-600">+2°C</div>
+              </div>
+              <div className="rounded-xl border bg-card p-4">
+                <div className="text-sm text-muted-foreground">Fields Active</div>
+                <div className="mt-2 text-2xl font-semibold">{new Set(readings.map(r=>r.location)).size || 0}</div>
+                <div className="text-xs text-emerald-600">100%</div>
+              </div>
+              <div className="rounded-xl border bg-card p-4">
+                <div className="text-sm text-muted-foreground">Alerts</div>
+                <div className="mt-2 text-2xl font-semibold">{lastSuggestions ? lastSuggestions.length : 0}</div>
+                <div className="text-xs text-red-600">New</div>
+              </div>
             </div>
 
             <div className="rounded-xl border bg-card p-4 md:p-6">
@@ -79,7 +105,7 @@ export default function Index() {
 
             <div className="rounded-xl border bg-card p-4 md:p-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <h2 className="font-semibold">{t("export_reports")}</h2>
+                <h2 className="font-semibold">Smart Recommendations</h2>
                 <ExportXlsx readings={readings} />
               </div>
             </div>
