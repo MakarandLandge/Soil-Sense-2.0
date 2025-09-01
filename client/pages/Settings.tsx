@@ -89,16 +89,6 @@ export default function Settings() {
             </div>
             <Button variant="secondary">Connect</Button>
           </div>
-          <div className="border-t p-4 flex items-center justify-between">
-            <div>
-              <div className="font-medium">Soil Temperature</div>
-              <div className="text-sm text-muted-foreground">Shown on Dashboard</div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Input className="w-24" type="number" value={soilTemp} onChange={(e) => setSoilTemp(e.target.value)} />
-              <span className="text-sm">°C</span>
-            </div>
-          </div>
           <div className="border-t p-4 grid grid-cols-1 md:grid-cols-2 gap-3 items-center">
             <div>
               <div className="font-medium">Weather Location</div>
