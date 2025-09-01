@@ -10,29 +10,55 @@ export default function ExportXlsx({ readings }: { readings: Reading[] }) {
 
     const wb = XLSX.utils.book_new();
 
-    // Raw data sheet
-    const data = [
-      ["Date", "Location", "pH", "Notes"],
-      ...readings
-        .slice()
-        .sort((a, b) => a.date.localeCompare(b.date))
-        .map((r) => [r.date, r.location, r.ph, r.notes ?? ""]),
+    // Raw data sheet with all fields
+    const header = [
+      "Date",
+      "Location",
+      "pH",
+      "Moisture %",
+      "N (ppm)",
+      "K (ppm)",
+      "Hydrogen",
+      "Crop Type",
+      "Soil Color",
+      "Seed Type",
+      "Fertilizer Used",
+      "Pesticide Used",
+      "Notes",
     ];
-    const wsData = XLSX.utils.aoa_to_sheet(data);
+    const rows = readings
+      .slice()
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .map((r) => [
+        r.date,
+        r.location,
+        r.ph,
+        r.moisture ?? "",
+        r.n ?? "",
+        r.k ?? "",
+        r.hydrogen ?? "",
+        r.cropType ?? "",
+        r.soilColor ?? "",
+        r.seedType ?? "",
+        r.fertilizerUsed ?? "",
+        r.pesticideUsed ?? "",
+        r.notes ?? "",
+      ]);
+    const wsData = XLSX.utils.aoa_to_sheet([header, ...rows]);
     XLSX.utils.book_append_sheet(wb, wsData, "Readings");
 
-    // Summary sheet by chosen period
+    // Summary sheet by chosen period (avg pH)
     const summary = summarize(readings, period);
     const summaryRows: (string | number)[][] = [[`Summary (${period})`], ["Location", period === "weekly" ? "Week" : "Month", "Average pH", "Count"]];
-    Object.entries(summary).forEach(([loc, rows]) => {
-      rows.forEach((row) => {
+    Object.entries(summary).forEach(([loc, buckets]) => {
+      buckets.forEach((row) => {
         summaryRows.push([loc, row.label, row.avg, row.count]);
       });
     });
     const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
     XLSX.utils.book_append_sheet(wb, wsSummary, period === "weekly" ? "Weekly" : "Monthly");
 
-    const filename = `soil-ph-${period}-${new Date().toISOString().slice(0, 10)}.xlsx`;
+    const filename = `soil-data-${period}-${new Date().toISOString().slice(0, 10)}.xlsx`;
     XLSX.writeFile(wb, filename);
   }
 
