@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { BookOpen, Plus } from "lucide-react";
 import { loadReadings, saveReadings, suggestForReading, type Reading } from "@/lib/soil";
 import { useI18n } from "@/lib/i18n";
+import { fetchWeather, getStoredCoords, type Weather } from "@/lib/weather";
 
 export default function Index() {
   const { t } = useI18n();
