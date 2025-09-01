@@ -109,7 +109,7 @@ export default function Index() {
               </div>
               <div className="rounded-xl border bg-card p-4">
                 <div className="text-sm text-muted-foreground">Soil Temp</div>
-                <div className="mt-2 text-2xl font-semibold">{Number(localStorage.getItem('soil_temp_c')||'24')}°C</div>
+                <div className="mt-2 text-2xl font-semibold">{weather?.tempC != null ? Math.round(weather.tempC) : Number(localStorage.getItem('soil_temp_c')||'24')}°C</div>
                 <div className="text-xs text-emerald-600">+2°C</div>
               </div>
               <div className="rounded-xl border bg-card p-4">
