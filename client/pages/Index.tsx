@@ -212,6 +212,13 @@ export default function Index() {
           </div>
         </div>
       </section>
+      <a
+        href="#add-reading"
+        className="fixed bottom-20 right-4 md:hidden inline-flex items-center justify-center h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg"
+        aria-label="Add"
+      >
+        <Plus className="h-6 w-6" />
+      </a>
     </div>
   );
 }
