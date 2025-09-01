@@ -5,11 +5,20 @@ export interface Reading {
   date: string; // ISO date
   location: string;
   ph: number;
+  n?: number; // ppm
+  k?: number; // ppm
+  moisture?: number; // percentage 0-100
+  hydrogen?: number; // optional, as requested
+  cropType?: string;
+  soilColor?: string;
+  seedType?: string;
+  fertilizerUsed?: string;
+  pesticideUsed?: string;
   notes?: string;
 }
 
 export interface Suggestion {
-  status: "acidic" | "optimal" | "alkaline";
+  status: "acidic" | "optimal" | "alkaline" | "dry" | "wet";
   headline: string;
   details: string[];
   severity: "low" | "medium" | "high";
