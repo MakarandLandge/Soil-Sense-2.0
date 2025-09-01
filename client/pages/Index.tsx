@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Plus } from "lucide-react";
 import { loadReadings, saveReadings, suggestForReading, type Reading } from "@/lib/soil";
 import { useI18n } from "@/lib/i18n";
 
