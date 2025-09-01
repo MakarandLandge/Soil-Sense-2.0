@@ -20,10 +20,38 @@ export default function Index() {
   const [lastSuggestions, setLastSuggestions] = useState<ReturnType<typeof suggestForReading> | null>(null);
   const [filterLocation, setFilterLocation] = useState<string | "All">("All");
   const [search, setSearch] = useState("");
+  const [weather, setWeather] = useState<Weather | null>(null);
 
   useEffect(() => {
     saveReadings(readings);
   }, [readings]);
+
+  useEffect(() => {
+    const coords = getStoredCoords();
+    if (navigator.geolocation && (!coords.lat || !coords.lon)) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          localStorage.setItem("weather_lat", String(latitude));
+          localStorage.setItem("weather_lon", String(longitude));
+          fetchWeather({ lat: latitude, lon: longitude }).then((w) => {
+            if (w?.tempC != null) localStorage.setItem("soil_temp_c", String(Math.round(w.tempC)));
+            setWeather(w);
+          });
+        },
+        () => {
+          if (coords.lat && coords.lon) {
+            fetchWeather({ lat: coords.lat, lon: coords.lon }).then(setWeather);
+          }
+        },
+      );
+    } else if (coords.lat && coords.lon) {
+      fetchWeather({ lat: coords.lat, lon: coords.lon }).then((w) => {
+        if (w?.tempC != null) localStorage.setItem("soil_temp_c", String(Math.round(w.tempC)));
+        setWeather(w);
+      });
+    }
+  }, []);
 
   const locations = useMemo(() => Array.from(new Set(readings.map((r) => r.location))), [readings]);
 
